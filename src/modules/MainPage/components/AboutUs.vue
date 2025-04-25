@@ -35,7 +35,7 @@
             <div class="card-body p-4">
               <div class="d-flex align-items-center">
                 <i class="bi bi-people fs-3 me-3 text-danger"></i>
-                <h3 class="h5 fw-bold mb-0">50k+ Participants</h3>
+                <h3 class="h5 fw-bold mb-0">50k+ Guests</h3>
               </div>
               <p class="text-muted mt-3 mb-0">
                 Connecting people through extraordinary event experiences.
@@ -49,7 +49,7 @@
             <div class="card-body p-4">
               <div class="d-flex align-items-center">
                 <i class="bi bi-trophy fs-3 me-3 text-danger"></i>
-                <h3 class="h5 fw-bold mb-0">Award-Winning</h3>
+                <h3 class="h5 fw-bold mb-0">Top-Rated</h3>
               </div>
               <p class="text-muted mt-3 mb-0">
                 Nationally recognized for innovation and excellence.

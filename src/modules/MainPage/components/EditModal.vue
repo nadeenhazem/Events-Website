@@ -116,7 +116,6 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching product data:", error);
       }
-      console.log("Edit event data:", editData.value);
     };
 
     watch(
@@ -132,9 +131,7 @@ export default defineComponent({
     watch(
       () => props.typeOfUpload,
       (newValue) => {
-        console.log("Upload type:", newValue);
         uploadType.value = newValue;
-        console.log("Upload type:", uploadType.value);
         if (newValue === "Add New") {
           editData.value.name = "";
           editData.value.address = "";

@@ -28,16 +28,60 @@
             <a class="nav-link text-muted" href="#contactUs">Contact Us</a>
           </li>
         </ul>
-        <span class="text-muted mt-2 me-2">
-          {{ userStore?.userData?.name }}
-        </span>
-        <ul class="navbar-text me-5 pe-5 mb-0 pb-0 list-unstyled">
-          <li class="nav-item dropdown">
+
+        <ul
+          class="navbar-text me-5 pe-5 mb-0 pb-0 list-unstyled d-md-flex d-block"
+        >
+          <li class="nav-item d-flex align-items-center me-3">
+            <div class="input-group">
+              <select
+                v-model="selectedFilter"
+                class="form-select w-auto border-end-0"
+                style="max-width: 105px"
+              >
+                <option value="name">Name</option>
+                <option value="address">Address</option>
+              </select>
+
+              <input
+                type="search"
+                class="form-control border-start-0 border-end-0"
+                placeholder="Search..."
+                aria-label="Search"
+                v-model="searchInput"
+              />
+
+              <span
+                class="input-group-text border-start-0 bg-transparent"
+                @click="clearSearch"
+                v-if="clickSearch"
+                role="button"
+              >
+                <i class="bi bi-x-circle text-muted"></i>
+              </span>
+              <span
+                class="input-group-text border-start-0 bg-transparent"
+                @click="searchData"
+                role="button"
+                v-else
+              >
+                <i class="bi bi-search text-muted"></i>
+              </span>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown d-flex">
+            <span
+              class="text-muted mt-2 me-2"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+              role="button"
+            >
+              {{ userStore?.userData?.name }}
+            </span>
             <a
               class="nav-link dropdown-toggle no-arrow"
               href="#"
-              id="navbarDropdownMenuLink"
-              data-toggle="dropdown"
               aria-expanded="false"
               title="Account"
             >
@@ -59,15 +103,24 @@
   </div>
 </template>
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { useAuthStore } from "../../Auth/store";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import { useEventStore } from "../store";
+
 export default defineComponent({
   setup() {
+    const getToken = JSON.parse(localStorage.getItem("token"));
+
     const userStore = useAuthStore();
     const userData = ref(userStore.userData);
     const router = useRouter();
+    const searchInput = ref("");
+    const clickSearch = ref(false);
+    const selectedFilter = ref("name");
+    const eventStore = useEventStore();
+
     const logoutUser = async () => {
       try {
         const response = await axios.post(
@@ -87,10 +140,56 @@ export default defineComponent({
         console.error("Error logging out:", error);
       }
     };
+    const searchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://interview.development.cat-sw.com/api/event?${selectedFilter.value}=${searchInput.value}`,
+          {
+            headers: {
+              Authorization: `Bearer ${getToken}`,
+            },
+          }
+        );
+        eventStore.setEventData(response.data?.data);
+      } catch {
+        console.error("Error fetching product data:", error);
+      }
+      clickSearch.value = true;
+    };
+    const clearSearch = async () => {
+      searchInput.value = "";
+      try {
+        const response = await axios.get(
+          `https://interview.development.cat-sw.com/api/event`,
+          {
+            headers: {
+              Authorization: `Bearer ${getToken}`,
+            },
+          }
+        );
+        if (response.data?.data?.length != 0) {
+          eventStore.setEventData(response.data?.data);
+        }
+      } catch {
+        console.error("Error fetching product data:", error);
+      }
+      clickSearch.value = false;
+    };
+    watch(
+      () => searchInput.value,
+      (newVal) => {
+        newVal.length == 0 && clearSearch();
+      }
+    );
     return {
       userStore,
       userData,
+      searchInput,
+      clickSearch,
+      selectedFilter,
+      clearSearch,
       logoutUser,
+      searchData,
     };
   },
 });

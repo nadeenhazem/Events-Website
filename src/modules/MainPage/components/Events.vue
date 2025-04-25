@@ -13,58 +13,69 @@
         New Event
       </button>
     </div>
-    <div class="loading-spinner" v-if="isLoading"></div>
 
-    <div class="row d-flex justify-content-start mx-auto gap-4" v-else>
+    <div class="loading-spinner" v-if="isLoading"></div>
+    <div v-else>
       <div
-        class="card col-md-4 text-center m-2 product-card golden-beige"
-        v-for="(client, index) in clients?.data"
-        :key="index"
-        :style="{ backgroundColor: client?.color }"
+        v-if="displayData?.length == 0"
+        class="d-flex justify-content-center text-danger"
+      >
+        <h2>No Data Found</h2>
+      </div>
+      <div
+        class="row d-flex justify-content-center justify-content-md-start mx-auto gap-4"
+        v-else
       >
         <div
-          class="card-body d-flex flex-column justify-content-end align-items-start position-relative text-start"
+          class="card col-md-4 text-center m-2 product-card golden-beige"
+          v-for="(client, index) in displayData"
+          :key="index"
+          :style="{ backgroundColor: client?.color }"
         >
-          <div class="position-absolute top-0 end-0 p-2">
-            <div class="d-flex flex-column align-items-end">
-              <h6
-                class="alert-date d-inline-flex flex-column align-items-center justify-content-center fs-5 mb-0 p-2"
+          <div
+            class="card-body d-flex flex-column justify-content-end align-items-start position-relative text-start"
+          >
+            <div class="position-absolute top-0 end-0 p-2">
+              <div class="d-flex flex-column align-items-end">
+                <h6
+                  class="alert-date d-inline-flex flex-column align-items-center justify-content-center fs-5 mb-0 p-2"
+                >
+                  <span class="text-uppercase small">until</span>
+                  <div class="d-flex flex-column text-center">
+                    <span class="fs-3 fw-bold">{{
+                      getDay(client?.expire_at)
+                    }}</span>
+                    <span class="small">{{ getMonth(client?.expire_at) }}</span>
+                  </div>
+                </h6>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4 ms-0 ps-0 text-start">
+                <h2 id="card-id" class="badge ps-0 fs-2 golden-beige">
+                  {{ client?.id < 10 ? `0${client?.id}` : client?.id }}
+                </h2>
+              </div>
+              <div
+                class="col-8 border-start border-light border-3 golden-beige ms-0"
               >
-                <span class="text-uppercase small">until</span>
-                <div class="d-flex flex-column text-center">
-                  <span class="fs-3 fw-bold">{{
-                    getDay(client?.expire_at)
-                  }}</span>
-                  <span class="small">{{ getMonth(client?.expire_at) }}</span>
-                </div>
-              </h6>
+                <h5 class="card-title">{{ client?.name }}</h5>
+                <p class="card-text">{{ client?.address }}</p>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-4 ms-0 ps-0 text-start">
-              <h2 id="card-id" class="badge ps-0 fs-2 golden-beige">
-                {{ client?.id < 10 ? `0${client?.id}` : client?.id }}
-              </h2>
+            <div class="position-absolute bottom-0 end-0 p-2">
+              <span title="Edit">
+                <i
+                  class="bi bi-pencil fs-5 golden-beige"
+                  @click="editEvent(client)"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exampleModal"
+                ></i>
+              </span>
+              <span title="Delete" @click="deleteEvent(client?.id)">
+                <i class="bi bi-trash text-danger ms-2 fs-5"></i>
+              </span>
             </div>
-            <div
-              class="col-8 border-start border-light border-3 golden-beige ms-0"
-            >
-              <h5 class="card-title">{{ client?.name }}</h5>
-              <p class="card-text">{{ client?.address }}</p>
-            </div>
-          </div>
-          <div class="position-absolute bottom-0 end-0 p-2">
-            <span title="Edit">
-              <i
-                class="bi bi-pencil fs-5 golden-beige"
-                @click="editEvent(client)"
-                data-bs-toggle="modal"
-                data-bs-target="#exampleModal"
-              ></i>
-            </span>
-            <span title="Delete" @click="deleteEvent(client?.id)">
-              <i class="bi bi-trash text-danger ms-2 fs-5"></i>
-            </span>
           </div>
         </div>
       </div>
@@ -79,8 +90,9 @@
 </template>
 <script>
 import axios from "axios";
-import { defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import EditModal from "./EditModal.vue";
+import { useEventStore } from "../store";
 export default defineComponent({
   components: {
     EditModal,
@@ -91,6 +103,10 @@ export default defineComponent({
     const updateEvent = ref({});
     const isLoading = ref(false);
     const typeOfUpload = ref("Edit");
+    const eventStore = useEventStore();
+    const displayData = computed(() => {
+      return eventStore?.eventData;
+    });
     const getEvent = async () => {
       isLoading.value = true;
       try {
@@ -104,8 +120,9 @@ export default defineComponent({
         );
 
         clients.value = response.data;
+        eventStore.setEventData(response.data?.data);
       } catch (error) {
-        console.error("Error fetching product data:", error);
+        console.error("Error fetching event data:", error);
       } finally {
         isLoading.value = false;
       }
@@ -143,11 +160,13 @@ export default defineComponent({
     onMounted(() => {
       getEvent();
     });
+
     return {
       clients,
       updateEvent,
       isLoading,
       typeOfUpload,
+      displayData,
       deleteEvent,
       editEvent,
       getEvent,

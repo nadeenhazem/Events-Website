@@ -36,9 +36,6 @@ The app uses a protected routing system where:
 - **Authentication** is token-based — the token is stored in LocalStorage after login.
 - **Navigation Guards** are implemented using Vue Router to protect routes.
 
-## 🧪 Setup Instructions
-
-To run this project:
 
 ## 🧪 Setup Instructions
 
