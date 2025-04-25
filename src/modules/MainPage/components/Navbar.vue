@@ -70,32 +70,21 @@
             </div>
           </li>
 
-          <li class="nav-item dropdown d-flex">
-            <span
-              class="text-muted mt-2 me-2"
-              id="navbarDropdownMenuLink"
-              data-toggle="dropdown"
+          <li
+            class="nav-item dropdown d-flex text-muted justify-content center"
+          >
+            <i class="bi bi-person fs-4 text-muted">
+              <span class="fs-6">{{ userStore?.userData?.name }}</span></i
+            >
+          </li>
+          <li
+            class="nav-item dropdown d-flex text-muted justify-content center ms-md-4 ms-0 me-0 mt-1 fs-5"
+          >
+            <i
+              class="bi bi-box-arrow-right"
               role="button"
-            >
-              {{ userStore?.userData?.name }}
-            </span>
-            <a
-              class="nav-link dropdown-toggle no-arrow"
-              href="#"
-              aria-expanded="false"
-              title="Account"
-            >
-              <i class="bi bi-person fs-4 text-muted"></i>
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <p
-                class="dropdown-item text-muted"
-                role="button"
-                @click="logoutUser"
-              >
-                Logout
-              </p>
-            </div>
+              @click="logoutUser"
+            ></i>
           </li>
         </ul>
       </div>
