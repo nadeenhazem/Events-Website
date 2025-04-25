@@ -101,14 +101,16 @@ export default defineComponent({
     const clients = ref([]);
     const getToken = JSON.parse(localStorage.getItem("token"));
     const updateEvent = ref({});
-    const isLoading = ref(false);
+    const isLoading = computed(() => {
+      return eventStore?.loading;
+    });
     const typeOfUpload = ref("Edit");
     const eventStore = useEventStore();
     const displayData = computed(() => {
       return eventStore?.eventData;
     });
     const getEvent = async () => {
-      isLoading.value = true;
+      eventStore.setLoading(true);
       try {
         const response = await axios.get(
           "https://interview.development.cat-sw.com/api/event",
@@ -124,7 +126,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching event data:", error);
       } finally {
-        isLoading.value = false;
+        eventStore.setLoading(false);
       }
     };
     const deleteEvent = async (id) => {

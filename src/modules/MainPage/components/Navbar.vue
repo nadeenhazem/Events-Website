@@ -141,6 +141,7 @@ export default defineComponent({
       }
     };
     const searchData = async () => {
+      eventStore.setLoading(true);
       try {
         const response = await axios.get(
           `https://interview.development.cat-sw.com/api/event?${selectedFilter.value}=${searchInput.value}`,
@@ -150,14 +151,18 @@ export default defineComponent({
             },
           }
         );
+
         eventStore.setEventData(response.data?.data);
-      } catch {
+      } catch (error) {
         console.error("Error fetching product data:", error);
+      } finally {
+        eventStore.setLoading(false);
       }
       clickSearch.value = true;
     };
     const clearSearch = async () => {
       searchInput.value = "";
+      eventStore.setLoading(true);
       try {
         const response = await axios.get(
           `https://interview.development.cat-sw.com/api/event`,
@@ -170,15 +175,23 @@ export default defineComponent({
         if (response.data?.data?.length != 0) {
           eventStore.setEventData(response.data?.data);
         }
-      } catch {
+      } catch (error) {
         console.error("Error fetching product data:", error);
+      } finally {
+        clickSearch.value = false;
+        eventStore.setLoading(false);
       }
-      clickSearch.value = false;
     };
     watch(
       () => searchInput.value,
       (newVal) => {
         newVal.length == 0 && clearSearch();
+      }
+    );
+    watch(
+      () => selectedFilter.value,
+      () => {
+        clearSearch();
       }
     );
     return {
